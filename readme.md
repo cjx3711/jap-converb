@@ -2,11 +2,11 @@
 
 This is a web application that can conjugate any japanese verb (hopefully) using the rules of conjugation.
 A live example can be found here.
-[Japanese Verb Conjugator](projects.pixelrife.com/jap)
+[Japanese Verb Conjugator](http://projects.pixelrife.com/jap)
 
 ## Libraries / Dependencies
 - [Wakakana](http://wanakana.com/) - Romaji - Kana conversion library
-- [Jisho API] - For dictionary results
+- [Jisho API](http://jisho.org/forum/54fefc1f6e73340b1f160000-is-there-any-kind-of-search-api) - For dictionary results
 
 ## Structure
 The application is coded in jQuery / Bootstrap.
