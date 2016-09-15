@@ -6,11 +6,62 @@ String.prototype.startsWith = function(prefix) {
     return this.indexOf(prefix) === 0;
 };
 
-//$("#verbField").
 
+function dictionaryLookup() {
+  $.ajax({
+      dataType: "json",
+      url: "proxy.php",
+      type:"GET",
+      data: {
+          "keyword": verb
+      },
+      crossDomain: true,
+      success: function(data, textStatus, jqXHR) {
+          $resultsList.html("");
+          for ( i = 0; i < data.data.length && i < 3; i++ ) {
+              jap = data.data[i].japanese;
+              word = jap[0].word;
+              reading = jap[0].reading;
+              senses = data.data[i].senses;
+              eng = senses[0].english_definitions;
+              partsofspeech = senses[0].parts_of_speech;
 
+              $("#completeResults").attr("href", "http://www.jisho.org/search/"+verb);
+
+              if ( typeof word == "undefined") word = reading;
+              if ( typeof reading == "undefined") reading = word;
+
+              reading = wanakana.toHiragana(reading);
+
+              definitions = "";
+              for (d = 0; d < eng.length; d++) {
+                  definitions += (d+1) + ". " + eng[d];
+                  if ( d < eng.length - 1 ) definitions += "<br/>";
+              }
+
+              parts = "";
+              for (d = 0; d < partsofspeech.length; d++) {
+                  parts += partsofspeech[d];
+                  if ( d < partsofspeech.length - 1 ) parts += "<br/>";
+              }
+
+              newRow = jishoRowTemplate
+              .replace(/_TITLE_/g, word + " (" + reading + ")" )
+              .replace(/_DEFINITION_/g, definitions)
+              .replace(/_PARTS_/g, parts);
+
+              $resultsList.append(newRow);
+
+          }
+          $dictPanel.slideDown(400);
+      }
+  });
+}
+/**
+ * Submits the verb
+ */
 function verbSubmit() {
-    var verb = $("#verbField").val();
+    var verb = $verbField.val();
 
     if ( !wanakana.isKana(verb) ) {
         verb = wanakana.toKana(verb);
@@ -20,58 +71,9 @@ function verbSubmit() {
 
     $("#verbHeader").text(verb);
 
-    $("#dictPanel").slideUp(200);
+    $dictPanel.slideUp(200);
 
-    $.ajax({
-        dataType: "json",
-        url: "proxy.php",
-        type:"GET",
-        data: {
-            "keyword": verb
-        },
-        crossDomain: true,
-        success: function(data, textStatus, jqXHR) {
-            $(".resultsList").html("");
-            for ( i = 0; i < data.data.length && i < 3; i++ ) {
-                jap = data.data[i].japanese;
-                word = jap[0].word;
-                reading = jap[0].reading;
-                senses = data.data[i].senses;
-                eng = senses[0].english_definitions;
-                partsofspeech = senses[0].parts_of_speech;
-
-                $("#completeResults").attr("href", "http://www.jisho.org/search/"+verb);
-
-                if ( typeof word == "undefined") word = reading;
-                if ( typeof reading == "undefined") reading = word;
-
-                reading = wanakana.toHiragana(reading);
-
-                definitions = "";
-                for (d = 0; d < eng.length; d++) {
-                    definitions += (d+1) + ". " + eng[d];
-                    if ( d < eng.length - 1 ) definitions += "<br/>";
-                }
-
-                parts = "";
-                for (d = 0; d < partsofspeech.length; d++) {
-                    parts += partsofspeech[d];
-                    if ( d < partsofspeech.length - 1 ) parts += "<br/>";
-                }
-
-                newRow = jishoRowTemplate
-                .replace(/_TITLE_/g, word + " (" + reading + ")" )
-                .replace(/_DEFINITION_/g, definitions)
-                .replace(/_PARTS_/g, parts);
-
-                $(".resultsList").append(newRow);
-
-            }
-            $("#dictPanel").slideDown(400);
-        }
-    });
-
-
+    dictionaryLookup();
 
     verbRomanji = wanakana.toRomaji(verb);
     console.log("Verb: " + verb + " " + verbRomanji);
@@ -79,26 +81,24 @@ function verbSubmit() {
     verbClass = checkType(verbRomanji);
     console.log("Class: " + verbClass);
 
-
     switch ( verbClass ) {
         case 0:
             $("#verbInfo").text("Invalid verb");
-            $(".conjugationTable").slideUp(200);
-
+            $conjugationTable.slideUp(200);
         return;
         case 1:
             $("#verbInfo").text("Class 1 verb (五段 - godan)");
             conjugation = conjugateClass1(verbRomanji);
             conjugation = furtherConjugations(conjugation, 1);
             fillTable(conjugation, 1);
-            $(".conjugationTable").slideDown(200);
+            $conjugationTable.slideDown(200);
         break;
         case 2:
             $("#verbInfo").text("Class 2 verb (一段 - ichidan)");
             conjugation = conjugateClass2(verbRomanji);
             conjugation = furtherConjugations(conjugation, 2);
             fillTable(conjugation, 2);
-            $(".conjugationTable").slideDown(200);
+            $conjugationTable.slideDown(200);
         break;
 
         case 3:
@@ -106,16 +106,10 @@ function verbSubmit() {
             conjugation = conjugateClass3(verbRomanji);
             conjugation = furtherConjugations(conjugation, 3);
             fillTable(conjugation, 3);
-            $(".conjugationTable").slideDown(200);
-
+            $conjugationTable.slideDown(200);
         break;
     }
 }
-
-$("#verbInput").submit(function (e) {
-    e.preventDefault();
-    verbSubmit();
-});
 
 function fillTable ( conj, verbClass ) {
     isClass1 = verbClass==1;
@@ -341,6 +335,8 @@ function conjugateClass3 ( verb ) {
     if ( verb == "kuru" ) return conjugateKuru ( verb );
     if ( verb == "suru" ) return conjugateSuru ( verb );
 }
+
+
 function conjugateKuru ( verb ) {
     if ( verb != "kuru" ) return null;
     var ret = {
@@ -514,24 +510,41 @@ function checkType ( verb ) {
 
 }
 
-var conjRowTemplate = $("#conjRowTemplate").html();
-var jishoRowTemplate = $("#jishoRowTemplate").html();
+var conjRowTemplate = null;
+var jishoRowTemplate = null;
+var $verbField = null;
+var $conjugationTable = null;
+var $dictPanel = null;
+var $resultsList = null;
 
 $(document).ready ( function () {
-    var input = document.getElementById('verbField');
-    wanakana.bind(input);
-    $(".conjugationTable").hide();
-    $("#dictPanel").hide();
+  // Init the selectors
+  conjRowTemplate = $("#conjRowTemplate").html();
+  jishoRowTemplate = $("#jishoRowTemplate").html();
+  $verbField = $("#verbField");
+  $conjugationTable =$(".conjugationTable");
+  $dictPanel = $("#dictPanel");
+  $resultsList = $(".resultsList");
 
-    word = document.location.hash;
-    if ( word.length > 0 || word.startsWith("#") ) word = word.substring(1);
-    $("#verbField").val(wanakana.toKana(word));
-    verbSubmit();
+  var input = document.getElementById('verbField');
+  wanakana.bind(input);
+  $conjugationTable.hide();
+  $dictPanel.hide();
 
-    window.onhashchange = function() {
-        word = document.location.hash;
-        if ( word.length > 0 || word.startsWith("#") ) word = word.substring(1);
-        $("#verbField").val(wanakana.toKana(word));
-        verbSubmit();
-    }
+  word = document.location.hash;
+  if ( word.length > 0 || word.startsWith("#") ) word = word.substring(1);
+  $verbField.val(wanakana.toKana(word));
+  verbSubmit();
+
+  window.onhashchange = function() {
+      word = document.location.hash;
+      if ( word.length > 0 || word.startsWith("#") ) word = word.substring(1);
+      $verbField.val(wanakana.toKana(word));
+      verbSubmit();
+  }
+
+  $("#verbInput").submit(function (e) {
+      e.preventDefault();
+      verbSubmit();
+  });
 });

@@ -14,7 +14,6 @@ $restColour = "#06BF5F";
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <script src="js/script.js"></script>
     <title>Verbs</title>
 
     <!-- Bootstrap Core CSS -->
@@ -215,6 +214,7 @@ $restColour = "#06BF5F";
             </td>
         </tr>
     </script>
+    <script src="js/script.js"></script>
 
 
 </body>
