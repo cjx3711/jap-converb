@@ -62,6 +62,7 @@ function conjugateVerb(verbRomaji) {
   var verbClass = checkType(verbRomanji);
   var message = "Error: No verb class";
   var success = true;
+  var conjugation = null;
   console.log("Class: " + verbClass);
 
   switch ( verbClass ) {
@@ -533,35 +534,3 @@ var $verbField = null;
 var $conjugationTable = null;
 var $dictPanel = null;
 var $resultsList = null;
-
-$(document).ready ( function () {
-  // Init the selectors
-  conjRowTemplate = $("#conjRowTemplate").html();
-  jishoRowTemplate = $("#jishoRowTemplate").html();
-  $verbField = $("#verbField");
-  $conjugationTable =$(".conjugationTable");
-  $dictPanel = $("#dictPanel");
-  $resultsList = $(".resultsList");
-
-  var input = document.getElementById('verbField');
-  wanakana.bind(input);
-  $conjugationTable.hide();
-  $dictPanel.hide();
-
-  word = document.location.hash;
-  if ( word.length > 0 || word.startsWith("#") ) word = word.substring(1);
-  $verbField.val(wanakana.toKana(word));
-  verbSubmit();
-
-  window.onhashchange = function() {
-      word = document.location.hash;
-      if ( word.length > 0 || word.startsWith("#") ) word = word.substring(1);
-      $verbField.val(wanakana.toKana(word));
-      verbSubmit();
-  }
-
-  $("#verbInput").submit(function (e) {
-      e.preventDefault();
-      verbSubmit();
-  });
-});
