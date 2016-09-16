@@ -7,7 +7,7 @@ String.prototype.startsWith = function(prefix) {
 };
 
 
-function dictionaryLookup() {
+function dictionaryLookup(verb) {
   $.ajax({
       dataType: "json",
       url: "proxy.php",
@@ -57,6 +57,43 @@ function dictionaryLookup() {
       }
   });
 }
+
+function conjugateVerb(verbRomaji) {
+  var verbClass = checkType(verbRomanji);
+  var message = "Error: No verb class";
+  var success = true;
+  var conjugation = null;
+  console.log("Class: " + verbClass);
+
+  switch ( verbClass ) {
+      case 0:
+          message = "Invalid verb";
+          success = false;
+          break;
+      case 1:
+          message = "Class 1 verb (五段 - godan)";
+          conjugation = conjugateClass1(verbRomanji);
+          conjugation = furtherConjugations(conjugation, 1);
+      break;
+      case 2:
+          message = "Class 2 verb (一段 - ichidan)";
+          conjugation = conjugateClass2(verbRomanji);
+          conjugation = furtherConjugations(conjugation, 2);
+      break;
+
+      case 3:
+          message = "Irregular verb";
+          conjugation = conjugateClass3(verbRomanji);
+          conjugation = furtherConjugations(conjugation, 3);
+      break;
+  }
+  return {
+    message: message,
+    conjugation: conjugation,
+    verbClass: verbClass,
+    success: success
+  }
+}
 /**
  * Submits the verb
  */
@@ -73,7 +110,7 @@ function verbSubmit() {
 
     $dictPanel.slideUp(200);
 
-    dictionaryLookup();
+    dictionaryLookup(verb);
 
     verbRomanji = wanakana.toRomaji(verb);
     console.log("Verb: " + verb + " " + verbRomanji);
@@ -81,33 +118,14 @@ function verbSubmit() {
     verbClass = checkType(verbRomanji);
     console.log("Class: " + verbClass);
 
-    switch ( verbClass ) {
-        case 0:
-            $("#verbInfo").text("Invalid verb");
-            $conjugationTable.slideUp(200);
-        return;
-        case 1:
-            $("#verbInfo").text("Class 1 verb (五段 - godan)");
-            conjugation = conjugateClass1(verbRomanji);
-            conjugation = furtherConjugations(conjugation, 1);
-            fillTable(conjugation, 1);
-            $conjugationTable.slideDown(200);
-        break;
-        case 2:
-            $("#verbInfo").text("Class 2 verb (一段 - ichidan)");
-            conjugation = conjugateClass2(verbRomanji);
-            conjugation = furtherConjugations(conjugation, 2);
-            fillTable(conjugation, 2);
-            $conjugationTable.slideDown(200);
-        break;
+    var conjugateData = conjugateVerb(verbRomanji);
 
-        case 3:
-            $("#verbInfo").html("Irregular verb");
-            conjugation = conjugateClass3(verbRomanji);
-            conjugation = furtherConjugations(conjugation, 3);
-            fillTable(conjugation, 3);
-            $conjugationTable.slideDown(200);
-        break;
+    $("#verbInfo").text(conjugateData.message);
+    if ( conjugateData.success ) {
+      fillTable(conjugateData.conjugation, conjugateData.verbClass);
+      $conjugationTable.slideDown(200);
+    } else {
+      $conjugationTable.slideUp(200);
     }
 }
 
@@ -516,35 +534,3 @@ var $verbField = null;
 var $conjugationTable = null;
 var $dictPanel = null;
 var $resultsList = null;
-
-$(document).ready ( function () {
-  // Init the selectors
-  conjRowTemplate = $("#conjRowTemplate").html();
-  jishoRowTemplate = $("#jishoRowTemplate").html();
-  $verbField = $("#verbField");
-  $conjugationTable =$(".conjugationTable");
-  $dictPanel = $("#dictPanel");
-  $resultsList = $(".resultsList");
-
-  var input = document.getElementById('verbField');
-  wanakana.bind(input);
-  $conjugationTable.hide();
-  $dictPanel.hide();
-
-  word = document.location.hash;
-  if ( word.length > 0 || word.startsWith("#") ) word = word.substring(1);
-  $verbField.val(wanakana.toKana(word));
-  verbSubmit();
-
-  window.onhashchange = function() {
-      word = document.location.hash;
-      if ( word.length > 0 || word.startsWith("#") ) word = word.substring(1);
-      $verbField.val(wanakana.toKana(word));
-      verbSubmit();
-  }
-
-  $("#verbInput").submit(function (e) {
-      e.preventDefault();
-      verbSubmit();
-  });
-});
