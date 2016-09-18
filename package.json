@@ -1,0 +1,9 @@
+{
+  "name": "jap-converb",
+  "version": "0.4.0",
+  "devDependencies": {
+    "grunt": "~1.0.1",
+    "grunt-contrib-jshint": "~1.0.0",
+    "grunt-contrib-qunit": "^1.2.0"
+  }
+}

@@ -16,6 +16,14 @@ The backend framework is running on PHP.
 - [jQuery](https://jquery.com/) - Javascript interactivity
 - [Bootstrap](http://getbootstrap.com/) - Responsive UI
 - [QUnit](http://qunitjs.com/) - Test framework
+- [Grunt](http://gruntjs.com/) - Test automation
+
+## Setup
+1. Clone the repo.
+1. Install npm
+1. Install grunt-cli `npm install -g grunt-cli`
+1. Install all project dependendies `npm install` (must be done in project folder)
+1. Run `grunt test` to see if grunt is running.
 
 > Note: There is no reason that the program is in php. It is only so because it happens to be the language I was most familiar with at that time.
 
