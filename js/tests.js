@@ -31,5 +31,5 @@ QUnit.test( "Class 3 verbs", function( assert ) {
 });
 
 QUnit.test( "All verb classes", function( assert ) {
-  assert.ok( 1 == "1", "Everything works fine." );
+  assert.ok( 1 == 2, "Everything works fine." );
 });
