@@ -1,5 +1,6 @@
 # Jap Converb
 
+[![Build Status](https://travis-ci.org/cjx3711/jap-converb.svg?branch=master)](https://travis-ci.org/cjx3711/jap-converb)
 v0.4
 
 This is a web application that can conjugate any Japanese verb (hopefully) using the rules of conjugation.
